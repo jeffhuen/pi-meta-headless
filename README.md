@@ -45,8 +45,6 @@ Pricing verified from the official [Meta Muse Code](https://developer.meta.com/a
 pi install git:github.com/jeffhuen/pi-meta-headless
 ```
 
-*(You can also use the alias `git:github.com/jeffhuen/pi-muse-headless`)*
-
 ### Update to Latest Version
 
 ```bash
