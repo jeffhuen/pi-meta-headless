@@ -35,12 +35,28 @@ Pricing verified from the official [Meta Muse Code](https://developer.meta.com/a
 
 ---
 
-## Installation
+---
 
-Install directly into Pi via Git:
+## Installation & Updates
+
+### Install via Pi
 
 ```bash
 pi install git:github.com/jeffhuen/pi-meta-headless
+```
+
+*(You can also use the alias `git:github.com/jeffhuen/pi-muse-headless`)*
+
+### Update to Latest Version
+
+```bash
+pi update git:github.com/jeffhuen/pi-meta-headless
+```
+
+### Uninstall / Remove
+
+```bash
+pi remove git:github.com/jeffhuen/pi-meta-headless
 ```
 
 ---
@@ -62,6 +78,44 @@ Open in your browser: https://auth.meta.com/oidc/device/authorization/...
 Confirm code: ABCD-EFGH
 ```
 Once approved, credentials are saved mode `0600` to `~/.config/muse-bridge/identity.json`.
+
+---
+
+## Usage in Pi
+
+1. Start `pi`:
+   ```bash
+   pi
+   ```
+2. Switch to Muse Spark 1.3:
+   ```text
+   /model meta/muse-spark-1.3
+   ```
+   Or the lower-cost contributor tier:
+   ```text
+   /model meta/muse-spark-1.3-contributor
+   ```
+3. Check connection, token expiration, latency, and diagnostics:
+   ```text
+   /meta.doctor
+   ```
+
+### Thinking Levels & Effort
+
+- **`muse-spark-1.3`**: Supports `minimal`, `low`, `medium`, `high`, `xhigh`, and `max`.
+- **`muse-spark-1.3-contributor` & `1.2`**: Meta upstream supports up to `xhigh`. `pi-meta-headless` automatically maps `max` to `xhigh` for contributor models so your global Pi setting (`defaultThinkingLevel: "max"`) never triggers HTTP 400 parameter errors.
+
+### Set as Default Provider
+
+Add to `~/.pi/agent/settings.json`:
+
+```json
+{
+  "defaultProvider": "meta",
+  "defaultModel": "muse-spark-1.3",
+  "defaultThinkingLevel": "high"
+}
+```
 
 ---
 
