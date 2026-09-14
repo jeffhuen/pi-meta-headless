@@ -89,7 +89,7 @@ export const META_MODELS = [
       medium: "medium",
       high: "high",
       xhigh: "xhigh",
-      max: "max",
+      max: "xhigh",
     },
   },
   {
@@ -111,7 +111,7 @@ export const META_MODELS = [
       medium: "medium",
       high: "high",
       xhigh: "xhigh",
-      max: "max",
+      max: "xhigh",
     },
   },
   {
@@ -133,7 +133,7 @@ export const META_MODELS = [
       medium: "medium",
       high: "high",
       xhigh: "xhigh",
-      max: "max",
+      max: "xhigh",
     },
   },
 ];
@@ -648,7 +648,10 @@ function createStreamSimple() {
         }
 
         if (hasReasoning) {
-          const effortLevel = model.thinkingLevelMap?.[effort] || effort || "high";
+          let effortLevel = model.thinkingLevelMap?.[effort] || effort || "high";
+          if (effortLevel === "max" && model.id !== "muse-spark-1.3") {
+            effortLevel = "xhigh";
+          }
           payload.reasoning = {
             effort: effortLevel,
             summary: "auto", // Secret sauce: triggers Meta live streaming thought summaries!
