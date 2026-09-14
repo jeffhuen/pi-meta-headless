@@ -929,9 +929,37 @@ function createStreamSimple() {
 export default function (pi: any): void {
   const streamSimple = createStreamSimple();
 
+  const creds = loadCredentials();
+
+  // Auto-sync existing Meta identity into ~/.pi/agent/auth.json so Pi core knows it is authorized
+  if (creds?.identity) {
+    try {
+      const authPath = path.join(os.homedir(), ".pi", "agent", "auth.json");
+      let authDoc: any = {};
+      if (fs.existsSync(authPath)) {
+        authDoc = JSON.parse(fs.readFileSync(authPath, "utf8"));
+      }
+      let changed = false;
+      for (const pId of ["meta", "muse", "meta-bridge-go"]) {
+        if (!authDoc[pId] || authDoc[pId].access !== creds.identity) {
+          authDoc[pId] = {
+            type: "oauth",
+            access: creds.identity,
+            expires: Date.now() + 30 * 24 * 3600 * 1000,
+          };
+          changed = true;
+        }
+      }
+      if (changed) {
+        fs.writeFileSync(authPath, JSON.stringify(authDoc, null, 2), { mode: 0o600 });
+      }
+    } catch {}
+  }
+
   const providerConfig = {
     name: PROVIDER_NAME,
     baseUrl: UPSTREAM_BASE,
+    apiKey: creds ? "meta-direct" : undefined,
     api: API_ID,
     models: META_MODELS,
     oauth: {
