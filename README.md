@@ -31,10 +31,6 @@ Pricing verified from the official [Meta Muse Code](https://developer.meta.com/a
 | `meta/muse-spark-1.2` | 1,007,997 | 128,000 | $1.25 | $0.15 | $4.25 |
 | `meta/muse-spark-1.2-contributor` | 1,007,997 | 128,000 | $0.10 | $0.002 | $0.20 |
 
-> **Note**: `muse` and `meta-bridge-go` provider aliases are also registered for backward compatibility with existing configs (e.g. `/model muse/muse-spark-1.3`).
-
----
-
 ---
 
 ## Installation & Updates

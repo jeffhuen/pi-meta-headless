@@ -1,6 +1,6 @@
 {
   "name": "pi-meta-headless",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "type": "module",
   "description": "Standalone zero-npm headless Meta extension for Pi with Muse Spark 1.3 support",
   "license": "MIT",

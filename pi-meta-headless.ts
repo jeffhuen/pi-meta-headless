@@ -974,20 +974,8 @@ export default function (pi: any): void {
     streamSimple,
   };
 
-  // Register primary provider: "meta"
+  // Register provider: "meta"
   pi.registerProvider("meta", providerConfig);
-
-  // Register alias: "muse"
-  pi.registerProvider("muse", {
-    ...providerConfig,
-    name: "Meta Muse Code",
-  });
-
-  // Register alias: "meta-bridge-go" (for drop-in compatibility with existing models.json/settings.json)
-  pi.registerProvider("meta-bridge-go", {
-    ...providerConfig,
-    name: "Meta Bridge (Native Headless)",
-  });
 
   // Register diagnostic doctor command
   pi.registerCommand("meta.doctor", {
