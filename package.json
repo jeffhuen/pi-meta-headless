@@ -5,6 +5,14 @@
   "description": "Standalone zero-npm headless Meta extension for Pi with Muse Spark 1.3 support",
   "license": "MIT",
   "author": "Jeff Huen",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jeffhuen/pi-meta-headless.git"
+  },
+  "files": [
+    "pi-meta-headless.ts",
+    "README.md"
+  ],
   "pi": {
     "extensions": [
       "pi-meta-headless.ts"
