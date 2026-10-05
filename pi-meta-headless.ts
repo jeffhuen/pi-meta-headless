@@ -483,15 +483,78 @@ class AssistantMessageEventStream {
 
 // --- Message Conversion for /v1/responses ---
 
+// --- Pi transcript compatibility ---
+// Pi delivers prompts and tools folded into transcript system messages
+// (content + sections, toolsAdded/toolsRemoved deltas); older harnesses pass
+// context.systemPrompt / context.tools directly. These resolvers accept both
+// shapes, preferring the direct fields when present.
+
+export function transcriptContentText(content: any, separator = "\n"): string {
+  if (typeof content === "string") return content;
+  if (!Array.isArray(content)) return "";
+  return content
+    .filter((b: any) => b && b.type === "text" && typeof b.text === "string")
+    .map((b: any) => b.text)
+    .join(separator);
+}
+
+// Mirror of pi-ai getSystemMessageText + renderSystemMessageUpdate.
+export function resolveSystemPrompt(context: any): string {
+  if (context.systemPrompt && String(context.systemPrompt).trim()) {
+    return String(context.systemPrompt);
+  }
+  const parts: string[] = [];
+  let first = true;
+  for (const msg of context.messages || []) {
+    if (!msg || msg.role !== "system") continue;
+    if (first) {
+      const segs = [transcriptContentText(msg.content)];
+      for (const value of Object.values(msg.sections ?? {})) {
+        if (value !== null && value !== undefined) segs.push(String(value));
+      }
+      const text = segs.filter((s) => s.length > 0).join("\n\n");
+      if (text) parts.push(text);
+      first = false;
+    } else {
+      const segs: string[] = [];
+      const head = transcriptContentText(msg.content);
+      if (head.length > 0) segs.push(head);
+      for (const [name, value] of Object.entries(msg.sections ?? {})) {
+        segs.push(
+          value === null || value === undefined
+            ? `Removed system prompt section "${name}".`
+            : `Updated system prompt section "${name}":\n\n${value}`
+        );
+      }
+      const text = segs.join("\n\n");
+      if (text) parts.push(text);
+    }
+  }
+  return parts.join("\n\n");
+}
+
+// Mirror of pi-ai getCurrentTools: replay tool deltas in transcript order.
+export function resolveContextTools(context: any): any[] | undefined {
+  if (context.tools && context.tools.length > 0) return context.tools;
+  const tools = new Map<string, any>();
+  for (const msg of context.messages || []) {
+    if (!msg) continue;
+    for (const t of msg.toolsRemoved ?? []) tools.delete(t.name);
+    for (const t of msg.toolsAdded ?? []) tools.set(t.name, t);
+  }
+  return tools.size > 0 ? [...tools.values()] : undefined;
+}
+
 function convertContextMessages(context: any, model: any): any[] {
   const input: any[] = [];
 
   // 1. System Prompt -> Developer message
-  if (context.systemPrompt && context.systemPrompt.trim()) {
+  const systemPrompt = resolveSystemPrompt(context);
+  if (systemPrompt.trim()) {
     input.push({
       type: "message",
       role: "developer",
-      content: [{ type: "input_text", text: context.systemPrompt.trim() }],
+      content: [{ type: "input_text", text: systemPrompt.trim() }],
     });
   }
 
@@ -629,7 +692,7 @@ function createStreamSimple() {
 
         // Build parameters
         const inputMessages = convertContextMessages(context, model);
-        const tools = convertContextTools(context.tools);
+        const tools = convertContextTools(resolveContextTools(context));
 
         // Normalize reasoning effort
         const effort = options?.reasoning;
